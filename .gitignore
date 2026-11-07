@@ -1,0 +1,31 @@
+# Dependencies and builds
+frontend/node_modules/
+frontend/dist/
+.venv/
+__pycache__/
+*.py[cod]
+
+# Local databases and credentials
+*.sqlite
+*.sqlite3
+*.sqlite3-*
+*.db
+.env
+.env.*
+!.env.example
+
+# Browser evidence and caches
+frontend/test-results/
+.pytest_cache/
+.hermes/
+artifacts/
+data/
+*:Zone.Identifier
+*.sqlite-*
+*.db-*
+*.lock
+*.log
+From Exceptions to Verified Approval.png
+docs/learning/
+docs/linkedin-caption-draft.txt
+docs/MINIMAL_RELEASE_AND_LINKEDIN_PLAN.md

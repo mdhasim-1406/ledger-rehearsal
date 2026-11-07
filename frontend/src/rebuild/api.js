@@ -1,0 +1,20 @@
+const mode = import.meta.env.VITE_API_MODE === 'operational' ? 'operational' : 'legacy';
+const operationalPaths = {overview:'/overview', cases:'/exceptions', detail:'/exceptions/'};
+export const apiPath = path => { if (mode !== 'operational') return path; if (path === '/cases') return operationalPaths.cases; if (path.startsWith('/cases/')) return operationalPaths.detail + path.slice('/cases/'.length); return path; };
+const base = import.meta.env.VITE_API_BASE || '/api';
+let credential = '';
+export const isOperational = () => mode === 'operational';
+export const setCredential = value => { credential = value.trim(); };
+export const request = async (path, options = {}) => {
+  const headers = new Headers(options.headers || {});
+  if (options.body && !headers.has('Content-Type')) headers.set('Content-Type','application/json');
+  if (isOperational() && credential) headers.set('Authorization', `Bearer ${credential}`);
+  if (isOperational() && path.endsWith('/apply') && options.method === 'POST' && !headers.has('Idempotency-Key')) headers.set('Idempotency-Key', crypto.randomUUID());
+  const response = await fetch(`${base}${apiPath(path)}`,{...options,headers});
+  const data = await response.json().catch(()=>({}));
+  if(!response.ok) throw new Error(typeof data.detail==='string'?data.detail:`Request failed (${response.status})`);
+  return data;
+};
+export const post = (path, body={}) => request(path,{method:'POST',body:JSON.stringify(body)});
+export const money = (value,currency='USD') => typeof value === 'number' ? new Intl.NumberFormat(undefined,{style:'currency',currency}).format(value) : '—';
+export const label = value => String(value ?? '').replace(/[_-]/g,' ').replace(/\b\w/g,c=>c.toUpperCase());
